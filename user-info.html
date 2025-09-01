@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Information</title>
+    <link rel="stylesheet" href="user-info.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script> <!-- Include SheetJS -->
+</head>
+<body>
+    <div class="background">
+        <video autoplay muted loop id="myVideo">
+            <source src="./4562023-hd_1040_1848_30fps.mp4" type="video/mp4">
+        </video>
+    </div>
+
+    <div class="container">
+        <div class="form-container">
+            <h1>Welcome to Serenity AI</h1>
+            <p>Please fill in your information to get started with your mental health journey.</p>
+            <form id="user-details-form">
+                <label for="name">Name:</label>
+                <input type="text" id="name" required placeholder="Enter your name" oninput="validateName()">
+                <span class="error" id="name-error"></span>
+                
+                <label for="age">Age:</label>
+                <input type="number" id="age" required placeholder="Enter your age" min="1" max="120" oninput="validateAge()">
+                <span class="error" id="age-error"></span>
+                
+                <label for="email">Email:</label>
+                <input type="email" id="email" required placeholder="Enter your email" oninput="validateEmail()">
+                <span class="error" id="email-error"></span>
+                
+                <label for="phone">Phone Number:</label>
+                <input type="tel" id="phone" required placeholder="Enter your phone number" oninput="validatePhone()">
+                <span class="error" id="phone-error"></span>
+                
+                <button type="submit" id="submit-btn">Start Chat</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        function validateName() {
+            const nameInput = document.getElementById('name');
+            const nameError = document.getElementById('name-error');
+            if (nameInput.value.trim() === "") {
+                nameError.textContent = "Name is required.";
+            } else {
+                nameError.textContent = "";
+            }
+        }
+
+        function validateAge() {
+            const ageInput = document.getElementById('age');
+            const ageError = document.getElementById('age-error');
+            if (ageInput.value < 1 || ageInput.value > 120) {
+                ageError.textContent = "Please enter a valid age.";
+            } else {
+                ageError.textContent = "";
+            }
+        }
+
+        function validateEmail() {
+            const emailInput = document.getElementById('email');
+            const emailError = document.getElementById('email-error');
+            const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailPattern.test(emailInput.value)) {
+                emailError.textContent = "Please enter a valid email address.";
+            } else {
+                emailError.textContent = "";
+            }
+        }
+
+        function validatePhone() {
+            const phoneInput = document.getElementById('phone');
+            const phoneError = document.getElementById('phone-error');
+            const phonePattern = /^\d{10}$/; // Assuming a 10-digit phone number
+            if (!phonePattern.test(phoneInput.value)) {
+                phoneError.textContent = "Please enter a valid phone number.";
+            } else {
+                phoneError.textContent = "";
+            }
+        }
+
+        document.getElementById('user-details-form').addEventListener('submit', function(event) {
+            event.preventDefault(); // Prevent the default form submission
+            
+            // Validate all fields before proceeding
+            validateName();
+            validateAge();
+            validateEmail();
+            validatePhone();
+
+            // Check if there are any errors
+            const errors = document.querySelectorAll('.error');
+            let hasErrors = false;
+            errors.forEach(error => {
+                if (error.textContent !== "") {
+                    hasErrors = true;
+                }
+            });
+
+            if (hasErrors) {
+                alert("Please correct the errors before submitting.");
+                return; // Stop submission if there are errors
+            }
+
+            // Get user details
+            const name = document.getElementById('name').value;
+            const age = document.getElementById('age').value;
+            const email = document.getElementById('email').value;
+            const phone = document.getElementById('phone').value;
+
+            // Store user details in local storage
+            localStorage.setItem('userName', name);
+            localStorage.setItem('userAge', age);
+            localStorage.setItem('userEmail', email);
+            localStorage.setItem('userPhone', phone);
+
+            // Create a new workbook and a new worksheet
+            const wb = XLSX.utils.book_new();
+            const ws_data = [
+                ["Name", "Age", "Email", "Phone Number"], // Header
+                [name, age, email, phone] // User data
+            ];
+            const ws = XLSX.utils.aoa_to_sheet(ws_data);
+            XLSX.utils.book_append_sheet(wb, ws, "User  Info");
+
+            // Generate Excel file and trigger download
+            XLSX.writeFile(wb, "User  Info.xlsx");
+
+            // Redirect to the chat page
+            window.location.href = 'INDEX.html';
+        });
+    </script>
+</body>
+</html>
